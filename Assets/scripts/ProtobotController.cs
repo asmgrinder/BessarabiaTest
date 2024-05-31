@@ -150,7 +150,7 @@ public class ProtobotController : MonoBehaviourPunCallbacks
             hp -= Mathf.Min(hp, WeaponsDamage[weaponIndex]);
             if (null != MainMenuController.Instance)
             {
-                hitSound.volume = MainMenuController.Instance.Volume;
+                hitSound.volume = MainMenuController.Instance.SoundVolume;
                 hitSound.Play();
             }
             photonView.RPC("setHP", RpcTarget.All, hp);

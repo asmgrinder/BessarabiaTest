@@ -18,6 +18,8 @@ public class SimpleLauncher : MonoBehaviourPunCallbacks
 	public int ProtobotCount = 3;
 	public float ProtoBotDelay = 3;
 
+	public float ProtoR = 10;
+
 	public bool SpawnComplete => 0 == protobotCount;
     public static SimpleLauncher Instance => _instance;
 
@@ -77,9 +79,8 @@ public class SimpleLauncher : MonoBehaviourPunCallbacks
 			{
                 protobotCount--;
 
-                float r = 3;
 				float ang = Random.Range(-180, 180);// * Mathf.PI / 180;
-				Vector3 newPos = r * (Mathf.Sin(ang) * Vector3.right + Mathf.Cos(ang) * Vector3.forward)
+				Vector3 newPos = ProtoR * (Mathf.Sin(ang) * Vector3.right + Mathf.Cos(ang) * Vector3.forward)
 								+ 0.75f * Vector3.up;
 				//Debug.Log("Instantiating protobot at " + newPos);
 				GameObject go = PhotonNetwork.Instantiate(Protobot.name, newPos, Quaternion.identity);

@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Range(20, 70)] public float MaxVertAng = 50;
     [Range(0, 3)] public float ThrowDistance = 0.8f;
 
+    public AudioClip MusicClip;
     public AudioClip MoveClip, JumpClip, HitClip;
 
     float RotX = 0;
@@ -41,6 +42,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Vector3 InitialCameraPos;
     Quaternion InitialCameraRot;
 
+    AudioSource musicSound;
     AudioSource moveSound, jumpSound, hitSound;
 
     float hitSoundTimer = 0;
@@ -51,6 +53,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         slots = new Transform[WeaponsMountPoints.Length];
         weaponAvatar = new Transform[slots.Length];
+
+        musicSound = gameObject.AddComponent(typeof(AudioSource)) as AudioSource; 
+        musicSound.volume = 0;
+        musicSound.loop = true;
+        musicSound.clip = MusicClip;
+        musicSound.Play();
 
         moveSound = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
         //moveSound.playOnAwake = false;
@@ -76,7 +84,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             InitialCameraPos = Camera.main.transform.localPosition;
             InitialCameraRot = Camera.main.transform.localRotation;
             Camera.main.transform.parent = MountPoint;
-            //    Cursor.visible = false;
         }
     }
 
@@ -150,7 +157,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 {
                     moveSound.volume = Mathf.Abs(rb.position.y) > 0.2f
                                         ? 0
-                                        : MainMenuController.Instance.Volume
+                                        : MainMenuController.Instance.SoundVolume
                                             * rb.velocity.magnitude / MaxSpeed2;
                 }
                 if (Input.GetMouseButton(0))
@@ -221,6 +228,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             hitSoundTimer -= Mathf.Min(hitSoundTimer, Time.deltaTime);
             hitSound.volume = GameMngr.Instance.IsPaused ? 0 : hitSoundTimer / hitTime;
         }
+        musicSound.volume = MainMenuController.Instance.MusicVolume;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -231,7 +239,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             //&& null != rb
             //&& rb.velocity.y < 0)
         {
-            jumpSound.volume = MainMenuController.Instance.Volume;
+            jumpSound.volume = MainMenuController.Instance.SoundVolume;
             jumpSound.Play();
         }
     }
@@ -254,7 +262,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             setActiveSlot(index);
         }
-        if (other.gameObject.CompareTag("fan"))
+        if (other.gameObject.CompareTag("fan")
+            && other.transform.localScale.sqrMagnitude > 0.98f)
         {
             //Debug.Log("fan hit");
             //hp -= Mathf.Min(hp, 1);

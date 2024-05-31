@@ -4,26 +4,36 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using UnityEngine.Rendering;
+using TMPro;
 
 public class MainMenuController : MonoBehaviour
 {
-    public Slider VolumeSlider;
+    public Slider SoundVolumeSlider, MusicVolumeSlider;
+
+    public TMP_Text Stats;
     public static MainMenuController Instance => _instance;
-    public float Volume => volume;
+    public float SoundVolume => soundVolume;
+    public float MusicVolume => musicVolume;
 
     static MainMenuController _instance;
 
     public bool IsActive => gameObject.activeSelf;
 
-    float volume = 1;
-    static string VolumeStr = "Volume";
+    float soundVolume = 1, musicVolume = 1;
+    static string SoundVolumeStr = "SoundVolume";
+    static string MusicVolumeStr = "MusicVolume";
 
     private void Awake()
     {
-        volume = PlayerPrefs.GetFloat(VolumeStr, 1);
-        if (null != VolumeSlider)
+        soundVolume = PlayerPrefs.GetFloat(SoundVolumeStr, 1);
+        if (null != SoundVolumeSlider)
         {
-            VolumeSlider.value = volume;
+            SoundVolumeSlider.value = soundVolume;
+        }
+        musicVolume = PlayerPrefs.GetFloat(MusicVolumeStr, 1);
+        if (null != MusicVolumeSlider)
+        {
+            MusicVolumeSlider.value = musicVolume;
         }
         if (null == _instance)
         {
@@ -41,6 +51,11 @@ public class MainMenuController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        GameMngr gm = GameMngr.Instance;
+        if (null != gm)
+        {
+            Stats.text = "Wins / Defeats: " + gm.Wins + " / " + gm.Loses;
+        }
     }
 
     public void Quit()
@@ -48,10 +63,16 @@ public class MainMenuController : MonoBehaviour
         Application.Quit();
     }
 
-    public void OnVolumeChanged(Slider s)
+    public void OnSoundVolumeChanged(Slider s)
     {
-        volume = s.value;
-        PlayerPrefs.SetFloat(VolumeStr, volume);
+        soundVolume = s.value;
+        PlayerPrefs.SetFloat(SoundVolumeStr, soundVolume);
+    }
+
+    public void OnMusicVolumeChanged(Slider s)
+    {
+        musicVolume = s.value;
+        PlayerPrefs.SetFloat(MusicVolumeStr, musicVolume);
     }
 
     public void Show(bool Show)
@@ -60,14 +81,6 @@ public class MainMenuController : MonoBehaviour
         if (null != gm)
         {
             gameObject.SetActive(Show);
-            //if (Show)
-            //{
-            //    gm.IncPauseReq();
-            //}
-            //else
-            //{
-            //    gm.DecPauseReq();
-            //}
             gm.IsPaused = Show;
             Cursor.visible = Show;
             Cursor.lockState = Show ? CursorLockMode.None : CursorLockMode.Locked;

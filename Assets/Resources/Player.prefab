@@ -547,6 +547,7 @@ MonoBehaviour:
   Deceleration: 2
   MaxVertAng: 45
   ThrowDistance: 1.8
+  MusicClip: {fileID: 8300000, guid: 79dd142d2256c054698ef100bfea1ef5, type: 3}
   MoveClip: {fileID: 8300000, guid: de15ab612289c0744a2426ae01fd30d0, type: 3}
   JumpClip: {fileID: 8300000, guid: 68925c837b941e642a37655ef991af9e, type: 3}
   HitClip: {fileID: 8300000, guid: 50172a8ea3d572048acbbde861c9fd06, type: 3}

@@ -25,11 +25,16 @@ public class GameMngr : MonoBehaviourPunCallbacks
     }
     public static GameMngr Instance => _instance;
 
+    public int Wins => wins;
+    public int Loses => loses;
+
     static GameMngr _instance;
 
     const string HPStr = "HitPoints";
     const string KillsStr = "Kills";
     const string MoneyStr = "Money";
+    const string WinsStr = "Wins";
+    const string LosesStr = "Loses";
 
     RectTransform uiHP;
     TMP_Text uiKills;
@@ -37,8 +42,10 @@ public class GameMngr : MonoBehaviourPunCallbacks
 
     bool paused = false;
     float HP = 100;
-    int Kills;
-    int Money;
+    int kills;
+    int money;
+    int wins;
+    int loses;
 
     // Awake is called when the script instance is being loaded
     private void Awake()
@@ -54,8 +61,10 @@ public class GameMngr : MonoBehaviourPunCallbacks
                 HP = 100;
             }
             PlayerPrefs.SetFloat(HPStr, HP);
-            Kills = PlayerPrefs.GetInt(KillsStr, 0);
-            Money = PlayerPrefs.GetInt(MoneyStr, 0);
+            kills = PlayerPrefs.GetInt(KillsStr, 0);
+            money = PlayerPrefs.GetInt(MoneyStr, 0);
+            wins = PlayerPrefs.GetInt(WinsStr, 0);
+            loses = PlayerPrefs.GetInt(LosesStr, 0);
 
             GameObject goHP = GameObject.FindGameObjectWithTag("player_hp");
             uiHP = goHP?.GetComponent<RectTransform>();
@@ -72,21 +81,8 @@ public class GameMngr : MonoBehaviourPunCallbacks
     {
         if (!MainMenuController.Instance.IsActive)
         {
-            //GameObject[] gos = GameObject.FindGameObjectsWithTag("pause");
-            //if (null != gos)
             if (FindObjectsOfType(typeof(PauseController)) is PauseController[] pcs)
             {
-                //int mineIndex = Array.FindIndex(gos, go => go.TryGetComponent(out PauseController pc) && pc.photonView.IsMine);
-                //int index = -1;
-                //for (int i = 0; i < gos.Length; i++)
-                //{
-                //    if (i != mineIndex
-                //        && gos[i].transform.position.sqrMagnitude > 0)
-                //    {
-                //        index = i;
-                //        break;
-                //    }
-                //}
                 IsPaused = Array.FindIndex(pcs, pc => pc.Paused) >= 0;
             }
             else
@@ -104,32 +100,11 @@ public class GameMngr : MonoBehaviourPunCallbacks
         }
         if (null != uiKills)
         {
-            uiKills.text = "Kills: " + Kills.ToString();
+            uiKills.text = "Kills: " + kills.ToString();
         }
         if (null != uiMoney)
         {
-            uiMoney.text = "Cash: " + Money.ToString();
-        }
-    }
-
-    public void IncKills(int Income)
-    {
-        Kills++;
-        Money += Income;
-        PlayerPrefs.SetInt(KillsStr, Kills);
-        PlayerPrefs.SetInt(MoneyStr, Money);
-    }
-
-    public void PlayerHit()
-    {
-        HP -= Mathf.Min(HP, PlayerDamage);
-        PlayerPrefs.SetFloat(HPStr, HP);
-        setUI();
-        if (0 == HP)
-        {
-            // lost
-            roundEnd("Defeat");
-            //Debug.Log("lost");
+            uiMoney.text = "Cash: " + money.ToString();
         }
     }
 
@@ -139,6 +114,31 @@ public class GameMngr : MonoBehaviourPunCallbacks
         setUI();
     }
 
+    public void IncKills(int Income)
+    {
+        kills++;
+        money += Income;
+        PlayerPrefs.SetInt(KillsStr, kills);
+        PlayerPrefs.SetInt(MoneyStr, money);
+    }
+
+    public void PlayerHit()
+    {
+        float prevHP = HP;
+        HP -= Mathf.Min(HP, PlayerDamage);
+        PlayerPrefs.SetFloat(HPStr, HP);
+        setUI();
+        if (0 == HP
+            && prevHP > 0)
+        {
+            // lost
+            loses++;
+            PlayerPrefs.SetInt(LosesStr, loses);
+            Message.Show("Defeat");
+            RoundEnd();
+        }
+    }
+
     public void CheckRoundEnd()
     {
         GameObject[] gos = GameObject.FindGameObjectsWithTag("protobot");
@@ -146,12 +146,14 @@ public class GameMngr : MonoBehaviourPunCallbacks
         if (index < 0
             && SimpleLauncher.Instance.SpawnComplete)
         {
-            roundEnd("Victory");
-            //Debug.Log("win");
+            wins ++;
+            PlayerPrefs.SetInt(WinsStr, wins);
+            Message.Show("Victory");
+            RoundEnd();
         }
     }
 
-    void roundEnd(string Result)
+    public void RoundEnd()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("player");
         if (null != players)
@@ -164,7 +166,6 @@ public class GameMngr : MonoBehaviourPunCallbacks
                 }
             }
         }
-        Message.Show(Result);
         StartCoroutine(disconnect());
     }
 
