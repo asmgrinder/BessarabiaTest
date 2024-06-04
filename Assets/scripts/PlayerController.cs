@@ -89,7 +89,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public void RestoreCamera()
     {
-        if (photonView.IsMine)
+        if (photonView.IsMine
+            && Camera.main.transform.parent == MountPoint)
         {
             Camera.main.transform.parent = null;
             Camera.main.transform.localPosition = InitialCameraPos;

@@ -53,6 +53,8 @@ public class GameMngr : MonoBehaviourPunCallbacks
     bool disconnecting = false;
     bool spawnComplete;
 
+    bool roundEnded = false;
+
     // Awake is called when the script instance is being loaded
     private void Awake()
     {
@@ -122,6 +124,7 @@ public class GameMngr : MonoBehaviourPunCallbacks
     {
         HP = 100;
         setUI();
+        roundEnded = false;
     }
 
     public void IncKills(int Income)
@@ -153,6 +156,7 @@ public class GameMngr : MonoBehaviourPunCallbacks
     {
         //Debug.Log("#" + (index < 0 && spawnComplete));
         if (spawnComplete
+            && !roundEnded
             && GameObject.FindGameObjectsWithTag("player").Length > 0)
         {
             GameObject[] gos = GameObject.FindGameObjectsWithTag("protobot");
@@ -170,6 +174,7 @@ public class GameMngr : MonoBehaviourPunCallbacks
 
     public void RoundEnd()
     {
+        roundEnded = true;
         GameObject[] players = GameObject.FindGameObjectsWithTag("player");
         if (null != players)
         {
