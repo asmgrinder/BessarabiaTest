@@ -19,6 +19,7 @@ TagManager:
   - ground
   - pause
   - player_paused
+  - debug text
   layers:
   - Default
   - TransparentFX

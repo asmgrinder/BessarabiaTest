@@ -9,6 +9,8 @@ public class GameMngr : MonoBehaviourPunCallbacks
 {
     public float PlayerDamage = 0.5f;
     public MessageController Message;
+
+    //public TMP_Text DebugText;
     public bool IsPaused
     {
         get
@@ -90,12 +92,14 @@ public class GameMngr : MonoBehaviourPunCallbacks
             {
                 IsPaused = Array.FindIndex(pcs, pc => pc.Paused) >= 0;
                 spawnComplete = Array.FindIndex(pcs, pc => !pc.SpawnComplete) < 0;
+                //Debug.Log("spawnComplete: " + spawnComplete);
             }
             else
             {
                 IsPaused = false;
             }
         }
+        CheckRoundEnd();
     }
 
     void setUI()
@@ -147,16 +151,20 @@ public class GameMngr : MonoBehaviourPunCallbacks
 
     public void CheckRoundEnd()
     {
-        GameObject[] gos = GameObject.FindGameObjectsWithTag("protobot");
-        int index = Array.FindIndex(gos, go => go.TryGetComponent(out ProtobotController pc) && pc.HitPoints > 0);
         //Debug.Log("#" + (index < 0 && spawnComplete));
-        if (index < 0
-            && spawnComplete)
+        if (spawnComplete
+            && GameObject.FindGameObjectsWithTag("player").Length > 0)
         {
-            wins ++;
-            PlayerPrefs.SetInt(WinsStr, wins);
-            Message.Show("Victory");
-            RoundEnd();
+            GameObject[] gos = GameObject.FindGameObjectsWithTag("protobot");
+            int index = Array.FindIndex(gos, go => go.TryGetComponent(out ProtobotController pc) && pc.HitPoints > 0);
+
+            if (index < 0)
+            {
+                wins++;
+                PlayerPrefs.SetInt(WinsStr, wins);
+                Message.Show("Victory");
+                RoundEnd();
+            }
         }
     }
 

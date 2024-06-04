@@ -73,8 +73,6 @@ public class ProtobotController : MonoBehaviourPunCallbacks
                     {
                         PhotonNetwork.Destroy(gameObject);
                     }
-
-                    GameMngr.Instance.CheckRoundEnd();
                 }
             }
             else
@@ -83,6 +81,11 @@ public class ProtobotController : MonoBehaviourPunCallbacks
             }
         }
     }
+
+    //private void OnDestroy()
+    //{
+    //    GameMngr.Instance.CheckRoundEnd();
+    //}
 
     void FixedUpdate()
     {
@@ -169,7 +172,6 @@ public class ProtobotController : MonoBehaviourPunCallbacks
     void setHP(float newHP)
     {
         hp = newHP;
-        //checkZeroHP();
         if (0 == hp)
         {
             shrinkTimer = ShrinkTime;
