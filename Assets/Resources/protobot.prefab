@@ -848,7 +848,7 @@ MonoBehaviour:
   MaxSpeed: 5
   Acc: 15
   Income: 100
-  HP: {fileID: 3079557746110494366}
+  HPBar: {fileID: 3079557746110494366}
   HitClip: {fileID: 8300000, guid: fcfcab82acd4d374292a1978b94ae80a, type: 3}
   ShrinkTime: 0.15
   WeaponsDamage:

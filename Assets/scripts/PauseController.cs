@@ -5,11 +5,11 @@ using Photon.Pun;
 
 public class PauseController : MonoBehaviourPunCallbacks
 {
-    public bool Mine;
-    public bool PP;
-    public bool P;
+    public bool SP;
     public bool Paused => null != photonView && !photonView.IsMine && paused;
+    public bool SpawnComplete => null != photonView && spawnComplete;
     bool paused;
+    bool spawnComplete;
 
     // Start is called before the first frame update
     void Start()
@@ -19,23 +19,22 @@ public class PauseController : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        Mine = photonView.IsMine;
-        PP = paused;
-        if (photonView.IsMine)
+        if (null != photonView
+            && photonView.IsMine
+            && null != SimpleLauncher.Instance
+            && PhotonNetwork.IsConnectedAndReady)
         {
-            transform.position = (GameMngr.Instance.IsPaused ? 1 : 0) * Vector3.right;
-            if (null != photonView
-                && PhotonNetwork.IsConnectedAndReady)
-            {
-                photonView.RPC("setPaused", RpcTarget.All, MainMenuController.Instance.IsActive);
-            }
+            photonView.RPC("setParams", RpcTarget.All,
+                            MainMenuController.Instance.IsActive,
+                            SimpleLauncher.Instance.SpawnComplete);
         }
-        P = Paused;
+        SP = SpawnComplete;
     }
 
     [PunRPC]
-    void setPaused(bool Paused)
+    void setParams(bool Paused, bool SpawnCompl)
     {
         paused = Paused;
+        spawnComplete = SpawnCompl;
     }
 }

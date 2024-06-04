@@ -145,7 +145,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                         accDir = -rb.velocity.normalized;
                         acc = Mathf.Min(Deceleration, rb.velocity.magnitude);
                     }
-                    accDir.y = 0;   //accDir = (accDir - accDir.y * Vector3.up).normalized;
+                    accDir.y = 0;
                 }
                 rb.AddForce(acc * accDir, ForceMode.Impulse);
                 float maxSpeed = Input.GetKey(KeyCode.LeftShift) ? MaxSpeed2 : MaxSpeed1;
@@ -204,7 +204,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     weaponAvatar[slotIndex].position = newPos;
                     weaponAvatar[slotIndex].localScale = slots[slotIndex].lossyScale;
 
-                    slots[slotIndex].localScale = Vector3.zero;//slots[slotIndex].gameObject.SetActive(false);
+                    slots[slotIndex].localScale = Vector3.zero;
                     slots[slotIndex] = null;
                 }
             }
@@ -236,8 +236,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (collision.gameObject.CompareTag("ground")
             && null != MainMenuController.Instance
             && null != jumpSound)
-            //&& null != rb
-            //&& rb.velocity.y < 0)
         {
             jumpSound.volume = MainMenuController.Instance.SoundVolume;
             jumpSound.Play();
@@ -258,15 +256,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
             other.transform.localScale = Vector3.zero;
 
             slots[index] = Weapons[index];
-            //other.transform.gameObject.SetActive(false);
 
             setActiveSlot(index);
         }
         if (other.gameObject.CompareTag("fan")
             && other.transform.localScale.sqrMagnitude > 0.98f)
         {
-            //Debug.Log("fan hit");
-            //hp -= Mathf.Min(hp, 1);
             hitSoundTimer = hitTime;
             if (photonView.IsMine)
             {
@@ -285,10 +280,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 if (null != slot)
                 {
-                    slot.localScale = Vector3.zero;//slot.gameObject.SetActive(false);
+                    slot.localScale = Vector3.zero;
                 }
             }
-            slots[index].localScale = Vector3.one;//slots[index].gameObject.SetActive(true);
+            slots[index].localScale = Vector3.one;
         }
     }
 

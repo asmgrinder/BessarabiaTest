@@ -13,7 +13,8 @@ public class ProtobotController : MonoBehaviourPunCallbacks
     public float Acc = 15;
     public int Income = 100;
 
-    public Transform HP;
+    public Transform HPBar;
+    public float HitPoints => hp;
 
     public AudioClip HitClip;
 
@@ -25,7 +26,7 @@ public class ProtobotController : MonoBehaviourPunCallbacks
     float hp = 100;
 
     Material _hpMat;
-    Material hpMat => _hpMat ?? HP?.GetComponent<MeshRenderer>()?.material;
+    Material hpMat => _hpMat ?? HPBar?.GetComponent<MeshRenderer>()?.material;
 
     //float pollTimer;
     PlayerController targetPlayer;
@@ -49,30 +50,36 @@ public class ProtobotController : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        if (null != HP
-            && null != HP.transform)
+        if (null != HPBar
+            && null != HPBar.transform)
         {
-            HP.transform.LookAt(Camera.main.transform);
+            HPBar.transform.LookAt(Camera.main.transform);
         }
         if (null != hpMat)
         {
             hpMat.SetFloat("_Ratio", hp / 100);
         }
-        if (0 == hp
-            && shrinkTimer > 0)
+        if (0 == hp)
         {
-            shrinkTimer -= Mathf.Min(shrinkTimer, Time.deltaTime);
-            transform.localScale = (shrinkTimer / ShrinkTime) * Vector3.one;
-            if (0 == shrinkTimer)
+            if (shrinkTimer > 0)
             {
-                GameMngr.Instance.IncKills(Income);
-                transform.localScale = Vector3.zero;
-                if (photonView.IsMine)
+                shrinkTimer -= Mathf.Min(shrinkTimer, Time.deltaTime);
+                transform.localScale = (shrinkTimer / ShrinkTime) * Vector3.one;
+                if (0 == shrinkTimer)
                 {
-                    PhotonNetwork.Destroy(gameObject);
-                }
+                    GameMngr.Instance.IncKills(Income);
+                    transform.localScale = Vector3.zero;
+                    if (photonView.IsMine)
+                    {
+                        PhotonNetwork.Destroy(gameObject);
+                    }
 
-                GameMngr.Instance.CheckRoundEnd();
+                    GameMngr.Instance.CheckRoundEnd();
+                }
+            }
+            else
+            {
+                transform.localScale = Vector3.zero;
             }
         }
     }
@@ -148,7 +155,8 @@ public class ProtobotController : MonoBehaviourPunCallbacks
             && hp > 0)
         {
             hp -= Mathf.Min(hp, WeaponsDamage[weaponIndex]);
-            if (null != MainMenuController.Instance)
+            if (null != MainMenuController.Instance
+                && null != hitSound)
             {
                 hitSound.volume = MainMenuController.Instance.SoundVolume;
                 hitSound.Play();

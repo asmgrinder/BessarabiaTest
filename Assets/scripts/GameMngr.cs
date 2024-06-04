@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using Photon.Pun;
-//using static UnityEditor.PlayerSettings;
-//using UnityEditor.VersionControl;
 
 public class GameMngr : MonoBehaviourPunCallbacks
 {
@@ -23,7 +21,10 @@ public class GameMngr : MonoBehaviourPunCallbacks
             Time.timeScale = paused ? 0.005f : 1;
         }
     }
+
     public static GameMngr Instance => _instance;
+
+    public bool IsDisconnecting => disconnecting;
 
     public int Wins => wins;
     public int Loses => loses;
@@ -46,6 +47,9 @@ public class GameMngr : MonoBehaviourPunCallbacks
     int money;
     int wins;
     int loses;
+
+    bool disconnecting = false;
+    bool spawnComplete;
 
     // Awake is called when the script instance is being loaded
     private void Awake()
@@ -79,11 +83,13 @@ public class GameMngr : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (!MainMenuController.Instance.IsActive)
+        if (null != MainMenuController.Instance
+            && !MainMenuController.Instance.IsActive)
         {
             if (FindObjectsOfType(typeof(PauseController)) is PauseController[] pcs)
             {
                 IsPaused = Array.FindIndex(pcs, pc => pc.Paused) >= 0;
+                spawnComplete = Array.FindIndex(pcs, pc => !pc.SpawnComplete) < 0;
             }
             else
             {
@@ -142,9 +148,10 @@ public class GameMngr : MonoBehaviourPunCallbacks
     public void CheckRoundEnd()
     {
         GameObject[] gos = GameObject.FindGameObjectsWithTag("protobot");
-        int index = Array.FindIndex(gos, go => go.transform.localScale.sqrMagnitude > 0);
+        int index = Array.FindIndex(gos, go => go.TryGetComponent(out ProtobotController pc) && pc.HitPoints > 0);
+        //Debug.Log("#" + (index < 0 && spawnComplete));
         if (index < 0
-            && SimpleLauncher.Instance.SpawnComplete)
+            && spawnComplete)
         {
             wins ++;
             PlayerPrefs.SetInt(WinsStr, wins);
@@ -175,11 +182,13 @@ public class GameMngr : MonoBehaviourPunCallbacks
         {
             yield return new WaitForSeconds(0.05f);
         }
+        disconnecting = true;
         PhotonNetwork.Disconnect();
         while (PhotonNetwork.IsConnected)
         {
             yield return new WaitForSeconds(0.05f);
         }
+        disconnecting = false;
         MainMenuController.Instance.Show(true);
     }
 }

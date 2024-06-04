@@ -18,6 +18,7 @@ TagManager:
   - protobot
   - ground
   - pause
+  - player_paused
   layers:
   - Default
   - TransparentFX
